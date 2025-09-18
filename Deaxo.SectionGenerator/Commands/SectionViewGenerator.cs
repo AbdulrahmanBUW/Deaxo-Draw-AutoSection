@@ -132,6 +132,35 @@ namespace Deaxo.SectionGenerator.Commands
         }
 
         /// <summary>
+        /// Create only cross-section view for the element.
+        /// Does not create elevation or plan views.
+        /// </summary>
+        /// <param name="viewNameBase">Base name for the view</param>
+        /// <param name="elementId">Element ID for unique naming</param>
+        /// <returns>ViewSection for cross-section only</returns>
+        public ViewSection CreateCrossSectionOnly(string viewNameBase, int elementId)
+        {
+            // Create only cross-section box
+            var sectionBoxCross = CreateSectionBox("cross");
+
+            // Get section type
+            ElementId sectionTypeId = _doc.GetDefaultElementTypeId(ElementTypeGroup.ViewTypeSection);
+            if (sectionTypeId == null || sectionTypeId == ElementId.InvalidElementId)
+                throw new Exception("No section view type available in document.");
+
+            // Create only cross-section
+            var sectionCross = ViewSection.CreateSection(_doc, sectionTypeId, sectionBoxCross);
+
+            // Create view name
+            string newNameCross = $"{viewNameBase}_{elementId}_Cross";
+
+            // Rename view
+            RenameView(sectionCross, newNameCross);
+
+            return sectionCross;
+        }
+
+        /// <summary>
         /// Create elevation, cross-section, and plan views for the element.
         /// Mirrors the Python create_sections method.
         /// </summary>

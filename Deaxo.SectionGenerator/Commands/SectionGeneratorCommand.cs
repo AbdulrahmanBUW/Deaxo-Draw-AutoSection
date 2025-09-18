@@ -107,9 +107,9 @@ namespace Deaxo.SectionGenerator.Commands
                     }
                 }
 
-                // 5) Transaction: create sections and sheets
+                // 5) Transaction: create cross-sections only (no sheets)
                 var results = new List<SectionResult>();
-                using (Transaction t = new Transaction(doc, "DEAXO - Generate Sections"))
+                using (Transaction t = new Transaction(doc, "DEAXO - Generate Cross-Sections"))
                 {
                     t.Start();
 
@@ -122,75 +122,27 @@ namespace Deaxo.SectionGenerator.Commands
 
                             if (!props.IsValid) continue;
 
-                            // create only the cross-section (section)
+                            // create only the cross-section (no elevation, no plan)
                             var sectionGen = new SectionViewGenerator(doc, props.Origin, props.Vector,
                                 props.Width, props.Height, props.offset(), props.Depth, props.offset());
 
-                            var created = sectionGen.CreateSections(props.TypeName, el.Id.IntegerValue);
-                            if (created == null || created.cross == null) continue;
-
-                            var crossSection = created.cross;
+                            var crossSection = sectionGen.CreateCrossSectionOnly(props.TypeName, el.Id.IntegerValue);
+                            if (crossSection == null) continue;
 
                             // apply view template if selected
                             if (chosenTemplate != null)
                                 crossSection.ViewTemplateId = chosenTemplate.Id;
 
-                            // create sheet and place view
-                            ElementId defaultTitleblockTypeId = doc.GetDefaultFamilyTypeId(new ElementId(BuiltInCategory.OST_TitleBlocks));
-                            if (defaultTitleblockTypeId == null || defaultTitleblockTypeId == ElementId.InvalidElementId)
+                            results.Add(new SectionResult
                             {
-                                // fallback: try to find any titleblock family symbol
-                                var tb = new FilteredElementCollector(doc)
-                                    .OfClass(typeof(FamilySymbol))
-                                    .OfCategory(BuiltInCategory.OST_TitleBlocks)
-                                    .Cast<FamilySymbol>()
-                                    .FirstOrDefault();
-                                if (tb != null)
-                                    defaultTitleblockTypeId = tb.Id;
-                            }
-
-                            if (defaultTitleblockTypeId != null && defaultTitleblockTypeId != ElementId.InvalidElementId)
-                            {
-                                var vs = ViewSheet.Create(doc, defaultTitleblockTypeId);
-
-                                // Place single view at center position
-                                XYZ pos = new XYZ(0, 0.35, 0);
-                                try
-                                {
-                                    if (Viewport.CanAddViewToSheet(doc, vs.Id, crossSection.Id))
-                                        Viewport.Create(doc, vs.Id, crossSection.Id, pos);
-                                }
-                                catch { /* ignore */ }
-
-                                // name sheet (unique)
-                                string typeName = props.TypeName ?? el.Category?.Name ?? "Element";
-                                string sheetNumber = $"DEAXO_{typeName}_{el.Id}";
-                                string sheetName = $"{el.Category?.Name} - Section (DEAXO GmbH)";
-                                for (int i = 0; i < 10; ++i)
-                                {
-                                    try
-                                    {
-                                        vs.SheetNumber = sheetNumber;
-                                        vs.Name = sheetName;
-                                        break;
-                                    }
-                                    catch
-                                    {
-                                        sheetNumber += "*";
-                                    }
-                                }
-
-                                results.Add(new SectionResult
-                                {
-                                    Category = el.Category?.Name ?? "Unknown",
-                                    TypeName = typeName,
-                                    ElementId = el.Id,
-                                    SheetId = vs.Id,
-                                    SectionId = crossSection.Id
-                                });
-                            }
+                                Category = el.Category?.Name ?? "Unknown",
+                                TypeName = props.TypeName ?? el.Category?.Name ?? "Element",
+                                ElementId = el.Id,
+                                SheetId = ElementId.InvalidElementId, // No sheet
+                                SectionId = crossSection.Id
+                            });
                         }
-                        catch (Exception exInner)
+                        catch (Exception)
                         {
                             // swallow per-element errors but could log if needed
                         }
@@ -207,7 +159,7 @@ namespace Deaxo.SectionGenerator.Commands
                 }
                 else
                 {
-                    TaskDialog.Show("DEAXO - Section Generator", "No sections were created.");
+                    TaskDialog.Show("DEAXO - Section Generator", "No cross-sections were created.");
                 }
 
                 return Result.Succeeded;

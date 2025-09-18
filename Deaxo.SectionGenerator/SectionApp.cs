@@ -24,13 +24,15 @@ namespace Deaxo.SectionGenerator
 
                 // PushButton data
                 string assemblyPath = Assembly.GetExecutingAssembly().Location;
-                var buttonData = new PushButtonData(
+                PushButtonData buttonData = new PushButtonData(
                     "SectionGenerator",
                     "Section\nGenerator",
                     assemblyPath,
                     "Deaxo.SectionGenerator.Commands.SectionGeneratorCommand"
-                );
-                buttonData.ToolTip = "Generate cross-sections for selected elements and place on sheets";
+                )
+                {
+                    ToolTip = "Generate cross-sections for selected elements and place on sheets",
+                };
 
                 // Load large and small icons using GDI → WPF conversion
                 buttonData.LargeImage = LoadBitmapFromEmbeddedResource("Deaxo.SectionGenerator.Resources.section32.png");

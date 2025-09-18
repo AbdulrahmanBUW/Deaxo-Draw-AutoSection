@@ -1,8 +1,8 @@
 <RevitAddIns>
 	<AddIn Type="Application">
-		<n>DEAXO Section Generator</n>
+		<Name>DEAXO Section Generator</Name>
 		<Assembly>Deaxo.SectionGenerator.dll</Assembly>
-		<AddInId>7C846E5C-52B3-4B29-A8D8-FF29B6B9E8G5</AddInId>
+		<AddInId>7C846E5C-52B3-4B29-A8D8-FF29B6B9E8F5</AddInId>
 		<FullClassName>Deaxo.SectionGenerator.SectionApp</FullClassName>
 		<VendorId>DEAXO</VendorId>
 		<VendorDescription>DEAXO GmbH</VendorDescription>

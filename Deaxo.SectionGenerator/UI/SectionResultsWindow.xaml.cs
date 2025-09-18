@@ -18,7 +18,7 @@ namespace Deaxo.SectionGenerator.UI
                 Category = r.Category,
                 TypeName = r.TypeName,
                 ElementIdString = r.ElementId.IntegerValue.ToString(),
-                SheetIdString = r.SheetId.IntegerValue.ToString(),
+                SheetIdString = r.SheetId == ElementId.InvalidElementId ? "No Sheet" : r.SheetId.IntegerValue.ToString(),
                 SectionIdString = r.SectionId.IntegerValue.ToString()
             }).ToList();
 

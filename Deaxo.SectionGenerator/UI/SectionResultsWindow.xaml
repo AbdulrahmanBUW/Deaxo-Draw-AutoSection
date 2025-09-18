@@ -64,10 +64,10 @@
 
             <!-- Title -->
             <StackPanel Grid.Row="0" Margin="0,0,0,15">
-                <TextBlock Text="New Sections (DEAXO GmbH)" 
+                <TextBlock Text="New Cross-Sections (DEAXO GmbH)" 
                           FontSize="20" FontWeight="Bold" 
                           Foreground="#333" Margin="0,0,0,5"/>
-                <TextBlock Text="The following sections have been created and placed on sheets:" 
+                <TextBlock Text="The following cross-section views have been created:" 
                           FontSize="14" Foreground="#666"/>
             </StackPanel>
 
