@@ -22,7 +22,7 @@ namespace Deaxo.SectionGenerator.Commands
 
             try
             {
-                // 1) Category choices (same as auto elevation)
+                // 1) Category choices (same as auto elevation) - ALL SELECTED BY DEFAULT
                 var selectOpts = new Dictionary<string, object>()
                 {
                     {"Walls"                 , BuiltInCategory.OST_Walls},
@@ -43,28 +43,18 @@ namespace Deaxo.SectionGenerator.Commands
                         new BuiltInCategory[] {BuiltInCategory.OST_ElectricalFixtures, BuiltInCategory.OST_ElectricalEquipment }}
                 };
 
-                // 2) UI: select categories
-                var selectWindow = new SelectFromDictWindow(selectOpts.Keys.ToList(),
-                    "DEAXO - Select Categories", allowMultiple: true);
-                bool? res = selectWindow.ShowDialog();
-                if (res != true || selectWindow.SelectedItems.Count == 0)
-                {
-                    TaskDialog.Show("DEAXO", "No Category was selected. Cancelled.");
-                    return Result.Cancelled;
-                }
-
-                // convert selected keys to list of allowed types/categories
+                // Skip the category selection - use all categories by default
                 var allowedTypesOrCats = new List<object>();
-                foreach (var key in selectWindow.SelectedItems)
+                foreach (var kvp in selectOpts)
                 {
-                    var val = selectOpts[key];
+                    var val = kvp.Value;
                     if (val is BuiltInCategory bic) allowedTypesOrCats.Add(bic);
                     else if (val is BuiltInCategory[] bicArr)
                         allowedTypesOrCats.AddRange(bicArr.Cast<object>());
                     else allowedTypesOrCats.Add(val);
                 }
 
-                // 3) Selection: prompt user to select elements with filter
+                // 2) Selection: prompt user to select elements with filter
                 var selFilter = new SectionSelectionFilter(allowedTypesOrCats);
                 IList<Reference> refs = null;
                 try
@@ -83,11 +73,11 @@ namespace Deaxo.SectionGenerator.Commands
                     return Result.Cancelled;
                 }
 
-                // 4) Get view templates for optional selection
+                // 3) Get view templates for optional selection
                 var allViews = new FilteredElementCollector(doc).OfClass(typeof(View)).Cast<View>().ToList();
                 var viewTemplates = allViews.Where(v => v.IsTemplate).ToList();
 
-                // ask template (single-select)
+                // ask template (single-select) with corrected title
                 View chosenTemplate = null;
                 if (viewTemplates.Count > 0)
                 {
@@ -107,7 +97,7 @@ namespace Deaxo.SectionGenerator.Commands
                     }
                 }
 
-                // 5) Transaction: create cross-sections only (no sheets)
+                // 4) Transaction: create cross-sections only (no sheets)
                 var results = new List<SectionResult>();
                 using (Transaction t = new Transaction(doc, "DEAXO - Generate Cross-Sections"))
                 {
